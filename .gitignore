@@ -1,0 +1,5 @@
+# Abaikan file rahasia & cache
+.env
+__pycache__/
+*.pyc
+.venv/

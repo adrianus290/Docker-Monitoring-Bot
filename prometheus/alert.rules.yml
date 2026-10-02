@@ -1,0 +1,11 @@
+groups:
+  - name: container_alerts
+    rules:
+      - alert: ContainerDown
+        expr: (time() - last_over_time(container_last_seen{container_label_com_docker_compose_service!="", container_label_com_docker_compose_service!="prometheus"}[1h])) > 10
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.container_label_com_docker_compose_service }} BERHENTI!"
+          description: "Container '{{ $labels.container_label_com_docker_compose_service }}' di server aslab26 terdeteksi mati/DOWN."

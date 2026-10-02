@@ -1,0 +1,42 @@
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: monitoring-cadvisor
+    privileged: true
+    devices:
+      - "/dev/kmsg:/dev/kmsg"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    restart: always
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: monitoring-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml
+    ports:
+      - "9090:9090"
+    restart: always
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: monitoring-alertmanager
+    volumes:
+      - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    restart: always
+
+  botcon: #ini buat bot controler container docker
+      build:
+        context: .
+        dockerfile: Dockerfile.bot
+      container_name: botcon-monitoring
+      restart: always
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock

@@ -1,0 +1,28 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: "telegram-bot"
+  group_by: ['alertname', 'container_label_com_docker_compose_service']
+  group_wait: 0s
+  group_interval: 5s
+  repeat_interval: 5m
+
+receivers:
+  - name: "telegram-bot"
+    telegram_configs:
+      - bot_token: "YOUR_TELEGRAM_BOT_TOKEN_HERE"
+        chat_id: "YOUR_CHAT_ID_HERE"
+        parse_mode: "HTML"
+        message: |
+          {{ if eq .Status "firing" }}
+          🚨 <b>ALERT CONTAINER DOWN</b> 🚨
+          <b>Status:</b> FIRING
+          <b>Alert:</b> {{ .CommonAnnotations.summary }}
+          <b>Detail:</b> {{ .CommonAnnotations.description }} SEGERA CEK!
+          {{ else }}
+          ✅ <b>ALERT RESOLVED</b> ✅
+          <b>Status:</b> RESOLVED
+          <b>Alert:</b> Container {{ .CommonLabels.container_label_com_docker_compose_service }} SUDAH NORMAL!
+          <b>Detail:</b> Container ini sudah menyala dan beroperasi kembali.
+          {{ end }}
